@@ -1,0 +1,151 @@
+
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: "{{.Values.pipelineName}}-deploy-pipeline"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  params:
+    - default: "{{.Values.gitUrl}}"
+      description: Git Repository URL
+      name: GIT_URL
+      type: string
+    - default: "{{ .Values.containerImage}}"
+      name: IMAGE
+      type: string
+    - default: nimbus-kompare-web-portal
+      description: The name of the application
+      name: APP_NAME
+      type: string
+    - default: 0.0.6
+      description: The version of the application
+      name: APP_VERSION
+      type: string
+    - default: "{{ .Values.namespace }}"
+      description: The project where you deploy the app
+      name: DEPLOY_PROJECT
+      type: string
+    - default: "{{ .Values.namespace }}"
+      description: The project where you deploy the app
+      name: PROMOTE_PROJECT
+      type: string
+    - default: master
+      description: Git Reference like Tag or Current Head
+      name: GIT_REF
+      type: string
+    - default: ibmers
+      description: For example retrieve Trigger Binding from body
+      name: GIT_REPOSITORY_OWNER
+      type: string
+    - default: Just Update my Kubernetes Manifest
+      description: >-
+        Message You want to Annotate in Rollout History for help you tracking
+        manifest status
+      name: CHANGE_CAUSE_MESSAGE
+      type: string
+    - name: GIT_OPS_APP_DEPLOYMENT_REPOSITORY
+      default: "{{ .Values.gitOpsAppDeploymentRepository}}"
+      description: GitOps Repository that contain your Kubernetes Manifest File for Deployment Application like Service, Route, Deployment with Image Version to updated, etc
+      type: string
+    - name: GIT_OPS_CONTEXT_DIR_FOR_UPDATE_APPLICATION
+      default: "{{ .Values.gitOpsContextDirForUpdateApplication}}"
+      description: | 
+        Your Kustomization file for update Your Image to Specify Version so this Task will using "kustomize edit set image busybox=alpine:3.6"
+        To change your Image Version then push it to Git Repository Again so your Application will be up to date by your GIT OPS Base Deployment
+      type: string
+    - name: GIT_EMAIL
+      default: "{{ .Values.gitEmail}}"
+      description: Git Email for config
+      type: string
+    - name: GIT_USERNAME
+      default: "{{ .Values.gitUsername}}"
+      description: Git Username for config
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+        - name: submodules
+          value: 'true'
+        - name: depth
+          value: '1'
+        - name: sslVerify
+          value: 'true'
+        - name: deleteExisting
+          value: 'true'
+        - name: verbose
+          value: 'true'
+        - name: revision
+          value: $(params.GIT_REF)
+      taskRef:
+        kind: Task
+        name: git-clone-node-project
+      workspaces:
+        - name: output
+          workspace: myworkspace
+#===========================================================
+    - name: buildah-dockerfile
+      runAfter:
+        - git-clone
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: APP_VERSION
+          value: $(params.APP_VERSION)
+        - name: BUILDER_IMAGE
+          value: >-
+            registry.redhat.io/rhel8/buildah@sha256:180c4d9849b6ab0e5465d30d4f3a77765cf0d852ca1cb1efb59d6e8c9f90d467
+        - name: STORAGE_DRIVER
+          value: overlay
+        - name: DOCKERFILE
+          value: Dockerfile
+        - name: CONTEXT
+          value: .
+        - name: TLSVERIFY
+          value: 'true'
+        - name: FORMAT
+          value: oci
+      taskRef:
+        kind: Task
+        name: buildah-dockerfile
+      workspaces:
+        - name: source
+          workspace: myworkspace
+
+    - name: deploy-kustomize
+      runAfter: 
+      - buildah-dockerfile
+      params:
+      - name: CHANGE_CAUSE_MESSAGE
+        value: $(params.CHANGE_CAUSE_MESSAGE)
+      - name: GIT_OPS_APP_DEPLOYMENT_REPOSITORY
+        value: $(params.GIT_OPS_APP_DEPLOYMENT_REPOSITORY)
+      - name: GIT_OPS_CONTEXT_DIR_FOR_UPDATE_APPLICATION
+        value: "$(params.GIT_OPS_CONTEXT_DIR_FOR_UPDATE_APPLICATION)"
+      - name: IMAGE
+        value: "$(params.IMAGE)"
+      taskRef:
+        kind: Task
+        name: deploy-kustomize
+      workspaces:
+        - name: source
+          workspace: myworkspace
+     
+    - name: increment-semver-node
+      params:
+      - name: GIT_EMAIL
+        value: "$(params.GIT_EMAIL)"
+      - name: GIT_USERNAME
+        value: "$(params.GIT_USERNAME)"
+      runAfter: 
+      - deploy-kustomize
+      taskRef:
+        kind: Task
+        name: increment-semver-node
+      workspaces:
+      - name: source
+        workspace: myworkspace
+
+  workspaces:
+    - name: myworkspace

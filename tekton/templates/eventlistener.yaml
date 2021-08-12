@@ -1,0 +1,39 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{.Values.pipelineName}}"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: github-pull-request-listener
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-interceptor-secret
+              secretKey: secretToken
+            eventTypes:
+              - pull_request
+        - cel:
+            filter: "(body.action == 'opened' || body.action == 'reopened') || body.action == 'ready_for_review' "
+      bindings:
+        - ref: extended-github-pull-request
+          kind: ClusterTriggerBinding
+      template:
+        name: "{{.Values.pipelineName}}-test-template"
+
+    - name: github-push-listener
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-interceptor-secret
+              secretKey: secretToken
+            eventTypes:
+               - push
+        - cel:
+            filter: "(body.head_commit.message.split(' ')[0] != 'Release') && (body.ref =='refs/heads/master') "
+      bindings:
+        - ref: extended-github-push
+          kind: ClusterTriggerBinding
+      template:
+        name: {{.Values.pipelineName}}-deploy-template

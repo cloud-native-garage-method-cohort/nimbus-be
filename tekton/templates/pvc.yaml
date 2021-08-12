@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "{{.Values.pipelineName}}-pipeline"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{.Values.pvcSize}}"
+  volumeMode: Filesystem
