@@ -1,0 +1,23 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{.Values.pipelineName}}"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: github-push-listener
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-interceptor-secret
+              secretKey: secretToken
+            eventTypes:
+               - push
+        - cel:
+            filter: "(body.head_commit.message.split(' ')[0] != 'Release') && (body.ref =='refs/heads/main') "
+      bindings:
+        - ref: extended-github-push
+          kind: TriggerBinding
+      template:
+        name: {{.Values.pipelineName}}-deploy-template

@@ -1,0 +1,50 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: {{.Values.pipelineName}}-deploy-template
+  namespace: "{{ .Values.namespace }}"
+spec:
+  params:
+    - name: GIT_REF
+      description: Git Reference like Tag or Current Head
+      default: master
+    - name: GIT_HEAD_COMMIT_MESSAGE
+      description: Message You want to Annotate in Rollout History for help you tracking manifest status
+    - name: GIT_REPOSITORY_OWNER
+      description: For example retrieve Trigger Binding from body
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: "{{.Values.pipelineName}}-deploy-"
+      spec:
+        params:
+        - name: GIT_REF
+          value: $(tt.params.GIT_REF)
+        - name: GIT_REPOSITORY_OWNER
+          value: $(tt.params.GIT_REPOSITORY_OWNER)
+        # - name: CHANGE_CAUSE_MESSAGE
+        #   value: $(tt.params.GIT_HEAD_COMMIT_MESSAGE)
+        pipelineRef:
+          name: "{{.Values.pipelineName}}-deploy-pipeline"
+        workspaces:
+          - name: myworkspace
+            persistentVolumeClaim:
+              claimName: "{{.Values.pipelineName}}-pipeline"
+
+            # volumeClaimTemplate:
+            #   spec:
+            #     accessModes:
+            #       - ReadWriteOnce
+            #     resources:
+            #       requests:
+            #         storage: 1Gi
+        # resources:
+        #   - name: source
+        #     resourceSpec:
+        #       type: git
+        #       params:
+        #         - name: revision
+        #           value: $(tt.params.gitrevision)
+        #         - name: url
+        #           value: $(tt.params.gitrepositoryurl)
