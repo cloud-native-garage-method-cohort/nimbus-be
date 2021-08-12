@@ -2,7 +2,7 @@ pipelineName: be
 namespace: nimbus-bootcamp
 containerImage: quay.io/linxianer12/bootcamp-be
 pvcSize: 1Gi
-gitUrl: git@github.com:cloud-native-garage-method-cohort/nimbus-gitops.git
+gitUrl: git@github.com:cloud-native-garage-method-cohort/nimbus-be.git
 gitRef: master
 gitEmail: supakorn.t@ibm.com
 gitUsername: IBM Garage
