@@ -1,4 +1,4 @@
-import {Controller, Get, Res, HttpStatus, Logger, HttpException, Param} from '@nestjs/common';
+import {Controller, Get, Res, HttpStatus, Logger, HttpException, Param, Post, Body, Delete} from '@nestjs/common';
 import { Response } from 'express';
 import { TodoService } from '../service/todo.service';
 import { TodoModel } from "../model/todo.model";
@@ -12,7 +12,7 @@ export class TodoController {
 
   private readonly logger = new Logger(TodoController.name);
 
-  @Get('list')
+  @Get()
   async getTodoList(
       @Param('id') id,
       @Res() httpResponse?: Response,
@@ -31,5 +31,47 @@ export class TodoController {
       httpResponse.send(errorStatus);
     }
     return todoList;
+  }
+
+  @Post()
+  async postTodo(
+      @Body() reqBody?: TodoModel,
+      @Res() httpResponse?: Response,
+  ): Promise<boolean> {
+    let isSuccess = Boolean();
+    try {
+      isSuccess = await this.todoService.addTodoList(reqBody);
+      httpResponse.status(HttpStatus.OK).send(isSuccess);
+      return isSuccess;
+    } catch (err) {
+      this.logger.error(err);
+      const errorStatus = new HttpException(
+          { status: HttpStatus.BAD_REQUEST, error: err.message },
+          HttpStatus.BAD_REQUEST,
+      );
+      httpResponse.send(errorStatus);
+    }
+    return isSuccess;
+  }
+
+  @Delete()
+  async deleteTodo(
+      @Param('id') id,
+      @Res() httpResponse?: Response,
+  ): Promise<boolean> {
+    let isSuccess = Boolean();
+    try {
+      isSuccess = await this.todoService.deleteTodoList(id);
+      httpResponse.status(HttpStatus.OK).send(isSuccess);
+      return isSuccess;
+    } catch (err) {
+      this.logger.error(err);
+      const errorStatus = new HttpException(
+          { status: HttpStatus.BAD_REQUEST, error: err.message },
+          HttpStatus.BAD_REQUEST,
+      );
+      httpResponse.send(errorStatus);
+    }
+    return isSuccess;
   }
 }
