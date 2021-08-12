@@ -9,7 +9,7 @@ export class TodoService {
   async getTodoList(id): Promise<Array<TodoModel>> {
     let todoList = new Array<TodoModel>();
     //query todo from database and return
-    this.logger.debug('Todo list data '+todoList);
+    this.logger.debug('Todo list data '+id+' '+todoList);
     return todoList;
   }
 

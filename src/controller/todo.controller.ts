@@ -14,12 +14,13 @@ export class TodoController {
 
   @Get()
   async getTodoList(
-      @Param('id') id,
+      @Param() params,
       @Res() httpResponse?: Response,
   ): Promise<Array<TodoModel>> {
     let todoList = Array<TodoModel>();
     try {
-      todoList = await this.todoService.getTodoList(id);
+      todoList = await this.todoService.getTodoList(params.id);
+
       httpResponse.status(HttpStatus.OK).send(todoList);
       return todoList;
     } catch (err) {
@@ -37,11 +38,12 @@ export class TodoController {
   async postTodo(
       @Body() reqBody?: TodoModel,
       @Res() httpResponse?: Response,
-  ): Promise<boolean> {
+  ): Promise<Boolean> {
     let isSuccess = Boolean();
     try {
-      isSuccess = await this.todoService.addTodoList(reqBody);
-      httpResponse.status(HttpStatus.OK).send(isSuccess);
+      let isSuccess = await this.todoService.addTodoList(reqBody);
+
+      httpResponse.status(HttpStatus.OK);
       return isSuccess;
     } catch (err) {
       this.logger.error(err);
@@ -58,11 +60,12 @@ export class TodoController {
   async deleteTodo(
       @Param('id') id,
       @Res() httpResponse?: Response,
-  ): Promise<boolean> {
+  ): Promise<Boolean> {
     let isSuccess = Boolean();
     try {
-      isSuccess = await this.todoService.deleteTodoList(id);
-      httpResponse.status(HttpStatus.OK).send(isSuccess);
+      let isSuccess = await this.todoService.deleteTodoList(id);
+
+      httpResponse.status(HttpStatus.OK);
       return isSuccess;
     } catch (err) {
       this.logger.error(err);
