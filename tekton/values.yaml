@@ -7,6 +7,6 @@ gitRef: master
 gitEmail: supakorn.t@ibm.com
 gitUsername: IBM Garage
 gitOpsAppDeploymentRepository: git@github.com:cloud-native-garage-method-cohort/nimbus-gitops.git
-gitOpsContextDirForUpdateApplication: argo
+gitOpsContextDirForUpdateApplication: argocd/nimbus-be
 npmTestCommand: test:cov
 
