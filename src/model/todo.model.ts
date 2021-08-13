@@ -1,11 +1,12 @@
+import { TodoEntity } from '../repository/todo.entity';
+import { classToPlain, plainToClass } from 'class-transformer';
+
 export class TodoModel {
-  constructor(id?: string, name?: string, description?: string) {
+  constructor(id?: number, todo?: string) {
     this.id = id;
-    this.name = name;
-    this.description = description;
+    this.todo = todo;
   }
 
-  id: string;
-  name: string;
-  description: string;
+  id: number;
+  todo: string;
 }
