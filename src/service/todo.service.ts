@@ -10,6 +10,9 @@ export class TodoService {
     let todoList = new Array<TodoModel>();
     //query todo from database and return
     this.logger.debug('Todo list data '+id+' '+todoList);
+    if(id == undefined) {
+      this.logger.debug('id not define, query all');
+    }
     return todoList;
   }
 

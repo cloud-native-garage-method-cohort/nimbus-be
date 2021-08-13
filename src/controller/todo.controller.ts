@@ -1,4 +1,16 @@
-import {Controller, Get, Res, HttpStatus, Logger, HttpException, Param, Post, Body, Delete} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Res,
+  HttpStatus,
+  Logger,
+  HttpException,
+  Param,
+  Post,
+  Body,
+  Delete,
+  Query
+} from '@nestjs/common';
 import { Response } from 'express';
 import { TodoService } from '../service/todo.service';
 import { TodoModel } from "../model/todo.model";
@@ -14,12 +26,12 @@ export class TodoController {
 
   @Get()
   async getTodoList(
-      @Param() params,
+      @Query('id') id,
       @Res() httpResponse?: Response,
   ): Promise<Array<TodoModel>> {
     let todoList = Array<TodoModel>();
     try {
-      todoList = await this.todoService.getTodoList(params.id);
+      todoList = await this.todoService.getTodoList(id);
 
       httpResponse.status(HttpStatus.OK).send(todoList);
       return todoList;
