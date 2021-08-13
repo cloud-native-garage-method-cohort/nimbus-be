@@ -19,3 +19,5 @@ spec:
       bindings:
         - ref: extended-github-push
           kind: TriggerBinding
+      template:
+        name: {{.Values.pipelineName}}-deploy-template
