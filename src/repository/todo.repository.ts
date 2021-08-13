@@ -10,18 +10,18 @@ export class TodoRepository {
     private todoEntityRepository: Repository<TodoEntity>,
   ) {}
 
-  async getTodoList(): Promise<TodoEntity[]> {
+  getTodoList(): Promise<TodoEntity[]> {
     return this.todoEntityRepository.find();
   }
 
-  async getTodo(_id: number): Promise<TodoEntity[]> {
+  getTodo(_id: number): Promise<TodoEntity[]> {
     return this.todoEntityRepository.find({
       select: ['id', 'todo'],
       where: [{ id: _id }],
     });
   }
 
-  async addTodo(todoEntity: TodoEntity) {
+  addTodo(todoEntity: TodoEntity) {
     return this.todoEntityRepository.save(todoEntity);
   }
 

@@ -26,7 +26,6 @@ export class TodoController {
   @HttpCode(200)
   async getTodoList(
     @Query('id') id,
-    @Res() httpResponse?: Response,
   ): Promise<Array<TodoModel>> {
     let todoList = Array<TodoModel>();
     try {
@@ -45,7 +44,6 @@ export class TodoController {
   @HttpCode(200)
   async postTodo(
     @Body() reqBody?: TodoModel,
-    @Res() httpResponse?: Response,
   ): Promise<TodoModel> {
     let response = new TodoModel();
     try {
@@ -63,8 +61,7 @@ export class TodoController {
   @Delete()
   @HttpCode(200)
   async deleteTodo(
-    @Param('id') id,
-    @Res() httpResponse?: Response,
+    @Query('id') id,
   ): Promise<void> {
     try {
       await this.todoService.deleteTodoList(id);
