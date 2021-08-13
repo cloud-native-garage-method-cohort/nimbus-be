@@ -4,7 +4,6 @@ import { TodoService } from './service/todo.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TodoEntity } from './repository/todo.entity';
 import { TodoRepository } from './repository/todo.repository';
-//mysql.nimbus-bootcamp.svc.cluster.local
 import { TodoModule } from './todo.module';
 import { ConfigModule } from '@nestjs/config';
 @Module({
