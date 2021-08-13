@@ -18,10 +18,10 @@ export class TodoService {
     if (id == undefined) {
       this.logger.debug('id not define, query all');
       todoList = await this.TodoRepository.getTodoList();
-      this.logger.debug('Todo list id ' + id + ' with data ' + todoList);
+      this.logger.debug('Todo list id ' + id + ' with data ' + todoList.toString());
     } else {
       todoList = await this.TodoRepository.getTodo(id);
-      this.logger.debug('Todo list id ' + id + ' with data ' + todoList);
+      this.logger.debug('Todo list id ' + id + ' with data ' + todoList.toString());
     }
     return todoList;
   }
