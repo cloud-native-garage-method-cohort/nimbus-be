@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Res,
   HttpStatus,
   Logger,
   HttpException,
@@ -9,24 +10,23 @@ import {
   Body,
   Delete,
   Query,
-  HttpCode
+  HttpCode,
+  Response,
 } from '@nestjs/common';
 import { TodoService } from '../service/todo.service';
-import { TodoModel } from "../model/todo.model";
+import { TodoModel } from '../model/todo.model';
 
 @Controller('api/todo')
 export class TodoController {
-
-  constructor(
-      private readonly todoService: TodoService
-  ) {}
+  constructor(private readonly todoService: TodoService) {}
 
   private readonly logger = new Logger(TodoController.name);
 
   @Get()
   @HttpCode(200)
   async getTodoList(
-      @Query('id') id,
+    @Query('id') id,
+    @Res() httpResponse?: Response,
   ): Promise<Array<TodoModel>> {
     let todoList = Array<TodoModel>();
     try {
@@ -34,8 +34,8 @@ export class TodoController {
     } catch (err) {
       this.logger.error(err);
       throw new HttpException(
-          { status: HttpStatus.BAD_REQUEST, error: err.message },
-          HttpStatus.BAD_REQUEST,
+        { status: HttpStatus.BAD_REQUEST, error: err.message },
+        HttpStatus.BAD_REQUEST,
       );
     }
     return todoList;
@@ -44,7 +44,8 @@ export class TodoController {
   @Post()
   @HttpCode(200)
   async postTodo(
-      @Body() reqBody?: TodoModel,
+    @Body() reqBody?: TodoModel,
+    @Res() httpResponse?: Response,
   ): Promise<TodoModel> {
     let response = new TodoModel();
     try {
@@ -52,8 +53,8 @@ export class TodoController {
     } catch (err) {
       this.logger.error(err);
       throw new HttpException(
-          { status: HttpStatus.BAD_REQUEST, error: err.message },
-          HttpStatus.BAD_REQUEST,
+        { status: HttpStatus.BAD_REQUEST, error: err.message },
+        HttpStatus.BAD_REQUEST,
       );
     }
     return response;
@@ -62,15 +63,16 @@ export class TodoController {
   @Delete()
   @HttpCode(200)
   async deleteTodo(
-      @Param('id') id,
+    @Param('id') id,
+    @Res() httpResponse?: Response,
   ): Promise<void> {
     try {
       await this.todoService.deleteTodoList(id);
     } catch (err) {
       this.logger.error(err);
       throw new HttpException(
-          { status: HttpStatus.BAD_REQUEST, error: err.message },
-          HttpStatus.BAD_REQUEST,
+        { status: HttpStatus.BAD_REQUEST, error: err.message },
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
