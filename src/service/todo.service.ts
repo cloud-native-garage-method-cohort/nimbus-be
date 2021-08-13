@@ -14,13 +14,14 @@ export class TodoService {
 
   async getTodoList(id): Promise<Array<TodoModel>> {
     let todoList = new Array<TodoModel>();
-    this.logger.debug('Todo list data ' + id + ' ' + todoList);
 
     if (id == undefined) {
       this.logger.debug('id not define, query all');
       todoList = await this.TodoRepository.getTodoList();
+      this.logger.debug('Todo list id ' + id + ' with data ' + todoList);
     } else {
       todoList = await this.TodoRepository.getTodo(id);
+      this.logger.debug('Todo list id ' + id + ' with data ' + todoList);
     }
     return todoList;
   }
