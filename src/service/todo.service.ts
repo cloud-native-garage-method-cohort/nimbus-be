@@ -5,8 +5,10 @@ import { TodoEntity } from '../repository/todo.entity';
 
 @Injectable()
 export class TodoService {
-  @Inject()
-  private readonly TodoRepository: TodoRepository;
+
+  constructor(
+      private readonly TodoRepository: TodoRepository
+  ) {}
 
   private readonly logger = new Logger(TodoService.name);
 
