@@ -9,9 +9,8 @@ import {
   Post,
   Body,
   Delete,
-  Query
+  Query, HttpCode
 } from '@nestjs/common';
-import { Response } from 'express';
 import { TodoService } from '../service/todo.service';
 import { TodoModel } from "../model/todo.model";
 
@@ -25,6 +24,7 @@ export class TodoController {
   private readonly logger = new Logger(TodoController.name);
 
   @Get()
+  @HttpCode(200)
   async getTodoList(
       @Query('id') id,
       @Res() httpResponse?: Response,
@@ -32,61 +32,49 @@ export class TodoController {
     let todoList = Array<TodoModel>();
     try {
       todoList = await this.todoService.getTodoList(id);
-
-      httpResponse.status(HttpStatus.OK).send(todoList);
-      return todoList;
     } catch (err) {
       this.logger.error(err);
-      const errorStatus = new HttpException(
+      throw new HttpException(
           { status: HttpStatus.BAD_REQUEST, error: err.message },
           HttpStatus.BAD_REQUEST,
       );
-      httpResponse.send(errorStatus);
     }
     return todoList;
   }
 
   @Post()
+  @HttpCode(200)
   async postTodo(
       @Body() reqBody?: TodoModel,
       @Res() httpResponse?: Response,
-  ): Promise<Boolean> {
-    let isSuccess = Boolean();
+  ): Promise<TodoModel> {
+    let response = new TodoModel();
     try {
-      let isSuccess = await this.todoService.addTodoList(reqBody);
-
-      httpResponse.status(HttpStatus.OK);
-      return isSuccess;
+      response = await this.todoService.addTodoList(reqBody);
     } catch (err) {
       this.logger.error(err);
-      const errorStatus = new HttpException(
+      throw new HttpException(
           { status: HttpStatus.BAD_REQUEST, error: err.message },
           HttpStatus.BAD_REQUEST,
       );
-      httpResponse.send(errorStatus);
     }
-    return isSuccess;
+    return response;
   }
 
   @Delete()
+  @HttpCode(200)
   async deleteTodo(
       @Param('id') id,
       @Res() httpResponse?: Response,
-  ): Promise<Boolean> {
-    let isSuccess = Boolean();
+  ): Promise<void> {
     try {
-      let isSuccess = await this.todoService.deleteTodoList(id);
-
-      httpResponse.status(HttpStatus.OK);
-      return isSuccess;
+      await this.todoService.deleteTodoList(id);
     } catch (err) {
       this.logger.error(err);
-      const errorStatus = new HttpException(
+      throw new HttpException(
           { status: HttpStatus.BAD_REQUEST, error: err.message },
           HttpStatus.BAD_REQUEST,
       );
-      httpResponse.send(errorStatus);
     }
-    return isSuccess;
   }
 }
